@@ -10,16 +10,20 @@ It also provides a backend interface to ElasticSearch suitable for use with the
 
 In your web page insert:
 
-    <script type="text/javascript" src=""><script>
+    <script type="text/javascript" src="http://okfnlabs.org/elasticsearch.js/elasticsearch.js"><script>
 
 You should replace the src url with the url to your copy of elasticsearch.js.
 
-Here's an example of using the library to create, get and query some data. Note this example assumes you have ElasticSearch running at http://localhost:9200/
+Here's an example of using the library to create, get and query some data.
 
-    // Table = ES Type (aka Table)
-    // http://www.elasticsearch.org/guide/reference/glossary/#type
+    // Your ElasticSearch instance is running at http://localhost:9200/
+    // We are using index 'twitter' and type (table) 'tweet'
     var endpoint = 'http://localhost:9200/twitter/tweet';
+
+    // Table = an ElasticSearch Type (aka Table)
+    // http://www.elasticsearch.org/guide/reference/glossary/#type
     var table = ES.Table(endpoint);
+
     // get the mapping for this "table"
     // http://www.elasticsearch.org/guide/reference/glossary/#mapping
     table.mapping().done(function(theMapping) {

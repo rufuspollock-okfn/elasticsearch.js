@@ -1,4 +1,4 @@
-(function ($) {
+(function () {
 module("Backend ElasticSearch - Wrapper");
 
 var emptyQuery = function() {
@@ -10,7 +10,7 @@ var emptyQuery = function() {
 }
 
 test("queryNormalize", function() { 
-  var backend = new recline.Backend.ElasticSearch.Wrapper();
+  var backend = new ES.Table();
 
   var in_ = emptyQuery();
 
@@ -175,9 +175,9 @@ var sample_data = {
 };
 
 test("query", function() { 
-  var backend = new recline.Backend.ElasticSearch.Wrapper('https://localhost:9200/my-es-db/my-es-type');
+  var backend = new ES.Table('https://localhost:9200/my-es-db/my-es-type');
 
-  var stub = sinon.stub($, 'ajax', function(options) {
+  var stub = sinon.stub(jQuery, 'ajax', function(options) {
     if (options.url.indexOf('_mapping') != -1) {
       return {
         done: function(callback) {
@@ -210,13 +210,13 @@ test("query", function() {
     equal(3, queryResult.hits.hits.length);
     equal('Note 1', queryResult.hits.hits[0]._source['title']);
   });
-  $.ajax.restore();
+  jQuery.ajax.restore();
 });
 
 // DISABLED - this test requires ElasticSearch to be running locally
 // test("write", function() { 
 //   var url = 'http://localhost:9200/recline-test/es-write';
-//   var backend = new recline.Backend.ElasticSearch.Wrapper(url);
+//   var backend = new ES.Table(url);
 //   stop();
 // 
 //   var id = parseInt(Math.random()*100000000).toString();
@@ -272,7 +272,7 @@ test("query", function() {
     backend: 'elasticsearch'
   };
 
-  var stub = sinon.stub($, 'ajax', function(options) {
+  var stub = sinon.stub(jQuery, 'ajax', function(options) {
     if (options.url.indexOf('_mapping') != -1) {
       return {
         done: function(callback) {
@@ -303,7 +303,7 @@ test("query", function() {
     equal(3, recList.total);
     equal('Note 1', recList.hits[0].title);
   });
-  $.ajax.restore();
+  jQuery.ajax.restore();
 });
 
 // DISABLED - this test requires ElasticSearch to be running locally
@@ -348,7 +348,7 @@ test("query", function() {
 //         rec = null;
 // 
 //         // try to get ...
-//         var es = new recline.Backend.ElasticSearch.Wrapper(dataset.get('url'));
+//         var es = new ES.Table(dataset.get('url'));
 //         var jqxhr = es.get(id);
 //         jqxhr.done(function(data) {
 //           // should not be here
@@ -366,4 +366,4 @@ test("query", function() {
 //   });
 // });
 
-})(this.jQuery);
+})();

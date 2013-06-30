@@ -1,17 +1,12 @@
-this.recline = this.recline || {};
-this.recline.Backend = this.recline.Backend || {};
-this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
+var ES = {};
 
-(function($, my) {
-  "use strict";
-  my.__type__ = 'elasticsearch';
-
+(function(my) {
   // use either jQuery or Underscore Deferred depending on what is available
-  var Deferred = (typeof jQuery !== "undefined" && jQuery.Deferred) || _.Deferred;
+  var Deferred = _.isUndefined(this.jQuery) ? _.Deferred : jQuery.Deferred;
 
-  // ## ElasticSearch Wrapper
+  // ## Table
   //
-  // A simple JS wrapper around an [ElasticSearch](http://www.elasticsearch.org/) endpoints.
+  // A simple JS wrapper around an [ElasticSearch](http://www.elasticsearch.org/) Type / Table endpoint.
   //
   // @param {String} endpoint: url for ElasticSearch type/table, e.g. for ES running
   // on http://localhost:9200 with index twitter and type tweet it would be:
@@ -21,8 +16,8 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
   // @param {Object} options: set of options such as:
   //
   // * headers - {dict of headers to add to each request}
-  // * dataType: dataType for AJAx requests e.g. set to jsonp to make jsonp requests (default is json requests)
-  my.Wrapper = function(endpoint, options) { 
+  // * dataType: dataType for AJAX requests e.g. set to jsonp to make jsonp requests (default is json requests)
+  my.Table = function(endpoint, options) { 
     var self = this;
     this.endpoint = endpoint;
     this.options = _.extend({
@@ -171,6 +166,43 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
     };
   };
 
+// ### makeRequest
+// 
+// Just $.ajax but in any headers in the 'headers' attribute of this
+// Backend instance. Example:
+//
+// <pre>
+// var jqxhr = this._makeRequest({
+//   url: the-url
+// });
+// </pre>
+var makeRequest = function(data, headers) {
+  var extras = {};
+  if (headers) {
+    extras = {
+      beforeSend: function(req) {
+        _.each(headers, function(value, key) {
+          req.setRequestHeader(key, value);
+        });
+      }
+    };
+  }
+  var data = _.extend(extras, data);
+  return jQuery.ajax(data);
+};
+
+}(ES));
+
+var recline = recline || {};
+recline.Backend = recline.Backend || {};
+recline.Backend.ElasticSearch = recline.Backend.ElasticSearch || {};
+
+(function(my) {
+  "use strict";
+  my.__type__ = 'elasticsearch';
+
+  // use either jQuery or Underscore Deferred depending on what is available
+  var Deferred = _.isUndefined(jQuery) ? _.Deferred : jQuery.Deferred;
 
   // ## Recline Connectors 
   //
@@ -182,7 +214,7 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
 
   // ### fetch
   my.fetch = function(dataset) {
-    var es = new my.Wrapper(dataset.url, my.esOptions);
+    var es = new ES.Table(dataset.url, my.esOptions);
     var dfd = new Deferred();
     es.mapping().done(function(schema) {
 
@@ -209,7 +241,7 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
 
   // ### save
   my.save = function(changes, dataset) {
-    var es = new my.Wrapper(dataset.url, my.esOptions);
+    var es = new ES.Table(dataset.url, my.esOptions);
     if (changes.creates.length + changes.updates.length + changes.deletes.length > 1) {
       var dfd = new Deferred();
       msg = 'Saving more than one item at a time not yet supported';
@@ -230,7 +262,7 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
   // ### query
   my.query = function(queryObj, dataset) {
     var dfd = new Deferred();
-    var es = new my.Wrapper(dataset.url, my.esOptions);
+    var es = new ES.Table(dataset.url, my.esOptions);
     var jqxhr = es.query(queryObj);
     jqxhr.done(function(results) {
       var out = {
@@ -255,32 +287,5 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
     });
     return dfd.promise();
   };
-
-
-// ### makeRequest
-// 
-// Just $.ajax but in any headers in the 'headers' attribute of this
-// Backend instance. Example:
-//
-// <pre>
-// var jqxhr = this._makeRequest({
-//   url: the-url
-// });
-// </pre>
-var makeRequest = function(data, headers) {
-  var extras = {};
-  if (headers) {
-    extras = {
-      beforeSend: function(req) {
-        _.each(headers, function(value, key) {
-          req.setRequestHeader(key, value);
-        });
-      }
-    };
-  }
-  var data = _.extend(extras, data);
-  return $.ajax(data);
-};
-
-}(jQuery, this.recline.Backend.ElasticSearch));
+}(recline.Backend.ElasticSearch));
 
