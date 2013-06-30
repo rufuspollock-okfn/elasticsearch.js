@@ -8,11 +8,18 @@ It also provides a backend interface to ElasticSearch suitable for use with the
 
 ## Usage
 
-In your web page insert:
+The library requires:
+
+* underscore
+* jQuery (for Ajax requests)
+
+Load the library in your web page, e.g. do:
 
     <script type="text/javascript" src="http://okfnlabs.org/elasticsearch.js/elasticsearch.js"><script>
 
-You should replace the src url with the url to your copy of elasticsearch.js.
+(You can replace the src url with the url to your copy of elasticsearch.js).
+
+## Example
 
 Here's an example of using the library to create, get and query some data.
 
@@ -38,14 +45,4 @@ Here's an example of using the library to create, get and query some data.
         console.log(doc);
       });
     });
-
-## Dependencies
-
-* underscore
-* jQuery (optional) - only if you want ajax requests
-* underscore.deferred (optional) - only needed if no jQuery
-
-One of the reasons for the different options is that it ensures you can use
-this library in the browser *and* in webworkers (where jQuery does not
-function).
 
