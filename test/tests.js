@@ -51,7 +51,7 @@ test("queryNormalize", function() {
         and: [
           {
             term: {
-              xyz: 'xxx'
+              xyz: 'XXX'
             }
           }
         ]
