@@ -43,10 +43,7 @@ test("queryNormalize", function() {
   ]
   var out = backend._normalizeQuery(in_);
   var exp = {
-    constant_score: {
-      query: {
-        match_all: {}
-      },
+    filtered: {
       filter: {
         and: [
           {
@@ -75,10 +72,7 @@ test("queryNormalize", function() {
   ];
   var out = backend._normalizeQuery(in_);
   var exp = {
-    constant_score: {
-      query: {
-        match_all: {}
-      },
+    filtered: {
       filter: {
         and: [
           {
@@ -93,7 +87,64 @@ test("queryNormalize", function() {
     }
   };
   deepEqual(out, exp);
-});
+
+  var in_ = emptyQuery();
+  in_.filters = [
+    {
+      type: 'range',
+      field: 'dt',
+      from: '2013-08-19T00:00:00-07:00',
+      to: '2013-08-19T08:00:00-07:00',
+      include_lower: true,
+      include_upper: false
+    }
+  ];
+  var out = backend._normalizeQuery(in_);
+  var exp = {
+    filtered: {
+      filter: {
+        and: [
+          {
+            range: {
+              dt : {
+                from: '2013-08-19T00:00:00-07:00',
+                to: '2013-08-19T08:00:00-07:00',
+                include_lower: true,
+                include_upper: false
+              }
+            }
+          }
+        ]
+      }
+    }
+  };
+  deepEqual(out, exp);
+
+  var in_ = emptyQuery();
+  in_.filters = [
+    {
+      type: 'type',
+      value: 'message'
+    }
+  ];
+  var out = backend._normalizeQuery(in_);
+  var exp = {
+    filtered: {
+      filter: {
+        and: [
+          {
+            type: {
+              value: 'message'
+            }
+          }
+        ]
+      }
+    }
+  };
+  deepEqual(out, exp);
+
+}
+);
 
 var mapping_data = {
   "note": {
