@@ -91,29 +91,41 @@ var ES = {};
     this._normalizeQuery = function(queryObj) {
       var self = this;
       var queryInfo = (queryObj && queryObj.toJSON) ? queryObj.toJSON() : _.extend({}, queryObj);
-      var out = {
-        constant_score: {
-          query: {}
+      var query;
+      if (queryInfo.q) {
+        query = { 
+          query_string : { 
+            query : queryInfo.q 
+          }  
         }
-      };
-      if (!queryInfo.q) {
-        out.constant_score.query = {
-          match_all: {}
-        };
       } else {
-        out.constant_score.query = {
-          query_string: {
-            query: queryInfo.q
-          }
-        };
+        query = {
+          match_all: {}
+        }
       }
+      var out;
       if (queryInfo.filters && queryInfo.filters.length) {
-        out.constant_score.filter = {
-          and: []
-        };
+	// set up filtered query
+	out = { 
+	  filtered : { 
+	    filter : { 
+	      and : []
+	    }
+	  }
+	};
+	// add filters
         _.each(queryInfo.filters, function(filter) {
-          out.constant_score.filter.and.push(self._convertFilter(filter));
+          out.filtered.filter.and.push(self._convertFilter(filter));
         });
+	// add query string only if needed
+	if (queryInfo.q) {
+	  out.filtered.query = query;
+	}
+      } else {
+	out = {
+          constant_score: { query: {} }
+	};
+        out.constant_score.query = query;
       }
       return out;
     },
@@ -135,11 +147,26 @@ var ES = {};
       var out = {};
       out[filter.type] = {};
       if (filter.type === 'term') {
-        out.term[filter.field] = filter.term.toLowerCase();
+        out.term[filter.field] = filter.term;
       } else if (filter.type === 'geo_distance') {
         out.geo_distance[filter.field] = filter.point;
         out.geo_distance.distance = filter.distance;
         out.geo_distance.unit = filter.unit;
+      } else if (filter.type === 'range') {
+        // range filter: http://www.elasticsearch.org/guide/reference/query-dsl/range-filter/
+        out.range[filter.field] = { 
+          from : filter.from, 
+          to : filter.to 
+        };
+        if (_.has(filter, 'include_lower')) {
+          out.range[filter.field].include_lower = filter.include_lower;
+        }
+        if (_.has(filter, 'include_upper')) {
+          out.range[filter.field].include_upper = filter.include_upper;
+        }
+      } else if (filter.type == 'type') {
+        // type filter: http://www.elasticsearch.org/guide/reference/query-dsl/type-filter/
+        out.type = { value : filter.value };
       }
       return out;
     },
