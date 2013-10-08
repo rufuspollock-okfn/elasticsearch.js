@@ -33,6 +33,7 @@ test("queryNormalize", function() {
   var out = backend._normalizeQuery(in_);
   equal(out.constant_score.query.query_string.query, 'abc');
 
+  // filters only
   var in_ = emptyQuery();
   in_.filters = [
     {
@@ -43,21 +44,49 @@ test("queryNormalize", function() {
   ]
   var out = backend._normalizeQuery(in_);
   var exp = {
-    constant_score: {
-      query: {
-        match_all: {}
-      },
+    filtered: {
       filter: {
         and: [
           {
             term: {
-              xyz: 'xxx'
+              xyz: "xxx"
             }
           }
         ]
       }
     }
-  };
+  }
+  deepEqual(out, exp);
+
+  // filter and query string
+  var in_ = emptyQuery();
+  in_.q = 'abc'
+  in_.filters = [
+    {
+      type: 'term',
+      field: 'xyz',
+      term: 'XXX'
+    }
+  ]
+  var out = backend._normalizeQuery(in_);
+  var exp = {
+    filtered: {
+      filter: {
+        and: [
+          {
+            term: {
+              xyz: "xxx"
+            }
+          }
+        ]
+      },
+      query: {
+        query_string: {
+          query: "abc"
+        }
+      }
+    }
+  }
   deepEqual(out, exp);
 
   var in_ = emptyQuery();
@@ -75,23 +104,23 @@ test("queryNormalize", function() {
   ];
   var out = backend._normalizeQuery(in_);
   var exp = {
-    constant_score: {
-      query: {
-        match_all: {}
-      },
+    filtered: {
       filter: {
         and: [
           {
             geo_distance: {
               distance: 10,
-              unit: 'km',
-              'xyz': { lon: 0, lat: 0 }
+              unit: "km",
+              xyz: {
+                lat: 0,
+                lon: 0
+              }
             }
           }
         ]
       }
     }
-  };
+  }
   deepEqual(out, exp);
 });
 
