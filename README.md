@@ -15,7 +15,7 @@ The library requires:
 
 Load the library in your web page, e.g. do:
 
-    <script type="text/javascript" src="http://okfnlabs.org/elasticsearch.js/elasticsearch.js"><script>
+    <script type="text/javascript" src="http://okfnlabs.org/elasticsearch.js/elasticsearch.js"></script>
 
 (You can replace the src url with the url to your copy of elasticsearch.js).
 
