@@ -91,29 +91,41 @@ var ES = {};
     this._normalizeQuery = function(queryObj) {
       var self = this;
       var queryInfo = (queryObj && queryObj.toJSON) ? queryObj.toJSON() : _.extend({}, queryObj);
-      var out = {
-        constant_score: {
-          query: {}
+      var query;
+      if (queryInfo.q) {
+        query = { 
+          query_string : { 
+            query : queryInfo.q 
+          }  
         }
-      };
-      if (!queryInfo.q) {
-        out.constant_score.query = {
-          match_all: {}
-        };
       } else {
-        out.constant_score.query = {
-          query_string: {
-            query: queryInfo.q
-          }
-        };
+        query = {
+          match_all: {}
+        }
       }
+      var out;
       if (queryInfo.filters && queryInfo.filters.length) {
-        out.constant_score.filter = {
-          and: []
-        };
+	// set up filtered query
+	out = { 
+	  filtered : { 
+	    filter : { 
+	      and : []
+	    }
+	  }
+	};
+	// add filters
         _.each(queryInfo.filters, function(filter) {
-          out.constant_score.filter.and.push(self._convertFilter(filter));
+          out.filtered.filter.and.push(self._convertFilter(filter));
         });
+	// add query string only if needed
+	if (queryInfo.q) {
+	  out.filtered.query = query;
+	}
+      } else {
+	out = {
+          constant_score: { query: {} }
+	};
+        out.constant_score.query = query;
       }
       return out;
     },
