@@ -98,6 +98,12 @@ var ES = {};
             query : queryInfo.q 
           }  
         }
+      } else if (queryInfo.ids) {
+        query = {
+          ids : {
+            values : queryInfo.ids
+          }
+        }
       } else {
         query = {
           match_all: {}
@@ -117,10 +123,10 @@ var ES = {};
         _.each(queryInfo.filters, function(filter) {
           out.filtered.filter.and.push(self._convertFilter(filter));
         });
-        // add query string only if needed
-        if (queryInfo.q) {
-          out.filtered.query = query;
-        }
+	// add query string only if needed
+	if (queryInfo.q || queryInfo.ids) {
+	  out.filtered.query = query;
+	}
       } else {
         out = {
           constant_score: { query: {} }
@@ -182,6 +188,10 @@ var ES = {};
       if (esQuery.sort && esQuery.sort.length > 0) {
         esQuery.sort = this._normalizeSort(esQuery.sort);
       }
+      if (esQuery.ids) {
+        esQuery.size = esQuery.ids.length;
+        delete esQuery.ids;
+      }        
       var data = {source: JSON.stringify(esQuery)};
       var url = this.endpoint + '/_search';
       var jqxhr = makeRequest({
