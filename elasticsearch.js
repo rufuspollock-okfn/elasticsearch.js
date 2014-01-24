@@ -105,26 +105,26 @@ var ES = {};
       }
       var out;
       if (queryInfo.filters && queryInfo.filters.length) {
-	// set up filtered query
-	out = { 
-	  filtered : { 
-	    filter : { 
-	      and : []
-	    }
-	  }
-	};
-	// add filters
+        // set up filtered query
+        out = { 
+          filtered : { 
+            filter : { 
+              and : []
+            }
+          }
+        };
+        // add filters
         _.each(queryInfo.filters, function(filter) {
           out.filtered.filter.and.push(self._convertFilter(filter));
         });
-	// add query string only if needed
-	if (queryInfo.q) {
-	  out.filtered.query = query;
-	}
+        // add query string only if needed
+        if (queryInfo.q) {
+          out.filtered.query = query;
+        }
       } else {
-	out = {
+        out = {
           constant_score: { query: {} }
-	};
+        };
         out.constant_score.query = query;
       }
       return out;
