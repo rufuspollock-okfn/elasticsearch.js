@@ -31,18 +31,33 @@ Here's an example of using the library to create, get and query some data.
     // http://www.elasticsearch.org/guide/reference/glossary/#type
     var table = ES.Table(endpoint);
 
-    // get the mapping for this "table"
-    // http://www.elasticsearch.org/guide/reference/glossary/#mapping
-    table.mapping().done(function(theMapping) {
-      console.log(theMapping)
-    });
-
+    // Create some data
     table.upsert({
       id: '123',
       title: 'My new tweet'
     }).done(function() {
+      // now get it
       table.get('123').done(function(doc) {
         console.log(doc);
       });
+    });
+
+    // Query for data
+    // Queries follow Recline Query spec -
+    // http://okfnlabs.org/recline/docs/models.html#query-structure
+    // (very similar to ES)
+    table.query({
+      q: 'hello'
+      filters: [
+        { term: { 'owner': 'jones' } }
+      ]
+    }).done(function(out) {
+      console.log(out);
+    });
+
+    // get the mapping for this "table"
+    // http://www.elasticsearch.org/guide/reference/glossary/#mapping
+    table.mapping().done(function(theMapping) {
+      console.log(theMapping)
     });
 
