@@ -154,6 +154,12 @@ var ES = {};
       out[filter.type] = {};
       if (filter.type === 'term') {
         out.term[filter.field] = filter.term;
+      } else if (filter.type === 'terms') {
+        // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-terms-filter.html
+        out.terms[filter.field] = filter.terms;
+        if ('execution' in filter) {
+            out.terms['execution'] = filter.execution;
+        }
       } else if (filter.type === 'geo_distance') {
         out.geo_distance[filter.field] = filter.point;
         out.geo_distance.distance = filter.distance;
