@@ -158,6 +158,32 @@ test("queryNormalize", function() {
   var in_ = emptyQuery();
   in_.filters = [
     {
+      type: 'terms',
+      field: 'xyz',
+      terms: [ 'one', 'two', 'three' ]
+    }
+  ];
+  var out = backend._normalizeQuery(in_);
+  var exp = {
+    filtered: {
+      filter: {
+        and: [
+          {
+            terms: {
+              xyz : [
+                'one', 'two', 'three'
+              ]
+            }
+          }
+        ]
+      }
+    }
+  };
+  deepEqual(out, exp);
+
+  var in_ = emptyQuery();
+  in_.filters = [
+    {
       type: 'type',
       value: 'message'
     }
