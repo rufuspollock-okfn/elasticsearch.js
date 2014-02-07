@@ -158,6 +158,32 @@ test("queryNormalize", function() {
   var in_ = emptyQuery();
   in_.filters = [
     {
+      type: 'terms',
+      field: 'xyz',
+      terms: [ 'one', 'two', 'three' ]
+    }
+  ];
+  var out = backend._normalizeQuery(in_);
+  var exp = {
+    filtered: {
+      filter: {
+        and: [
+          {
+            terms: {
+              xyz : [
+                'one', 'two', 'three'
+              ]
+            }
+          }
+        ]
+      }
+    }
+  };
+  deepEqual(out, exp);
+
+  var in_ = emptyQuery();
+  in_.filters = [
+    {
       type: 'type',
       value: 'message'
     }
@@ -178,6 +204,20 @@ test("queryNormalize", function() {
   };
   deepEqual(out, exp);
 
+  // ids query 
+  var in_ = emptyQuery();
+  in_.ids = [ 1, 2, 3, 4 ];
+  var out = backend._normalizeQuery(in_);
+  var exp = {
+    constant_score: {
+      query : {
+        ids : {
+          values : [ 1, 2, 3, 4 ]
+        }
+      }
+    }
+  }
+  deepEqual(out, exp);
 }
 );
 
@@ -296,8 +336,10 @@ test("query", function() {
     equal(3, queryResult.hits.hits.length);
     equal('Note 1', queryResult.hits.hits[0]._source['title']);
   });
+
   jQuery.ajax.restore();
 });
+
 
 // DISABLED - this test requires ElasticSearch to be running locally
 // test("write", function() { 
