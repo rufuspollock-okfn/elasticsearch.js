@@ -72,6 +72,24 @@ var ES = {};
       });
     };
 
+    // ### update
+    //
+    // update a record to ElasticSearch backend
+    //
+    // @param {Object} doc an object to update to the index.
+    // @param {String} id of the doc to update
+    // @return deferred supporting promise API
+    this.update = function(doc, doc_id) {
+      var upd = { "doc" : doc };
+      var data = JSON.stringify({ "doc" : doc })
+      return makeRequest({
+        url: this.endpoint + '/' + doc_id + '/_update',
+        type: 'POST',
+        data: data,
+        dataType: 'json'
+      });
+    };
+
     // ### delete
     //
     // Delete a record from the ElasticSearch backend.
@@ -179,6 +197,9 @@ var ES = {};
       } else if (filter.type == 'type') {
         // type filter: http://www.elasticsearch.org/guide/reference/query-dsl/type-filter/
         out.type = { value : filter.value };
+      }
+      if (filter.not) {
+        out = { not: JSON.parse(JSON.stringify(out)) };
       }
       return out;
     },
@@ -300,6 +321,12 @@ recline.Backend.ElasticSearch = recline.Backend.ElasticSearch || {};
     } else if (changes.deletes.length > 0) {
       return es.remove(changes.deletes[0].id);
     }
+  };
+
+  // ### update
+  my.update = function(doc, doc_id, dataset) {
+    var es = new ES.Table(dataset.url, my.esOptions);
+    return es.update(doc, doc_id);
   };
 
   // ### query
