@@ -223,8 +223,8 @@ var ES = {};
       var url = this.endpoint + '/_search';
       var jqxhr = makeRequest({
         url: url,
-        data: data,
-        dataType: this.options.dataType
+        type: 'POST',
+        data: JSON.stringify(esQuery)
       });
       return jqxhr;
     };
