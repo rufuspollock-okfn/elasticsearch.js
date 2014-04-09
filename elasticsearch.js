@@ -197,6 +197,12 @@ var ES = {};
       } else if (filter.type == 'type') {
         // type filter: http://www.elasticsearch.org/guide/reference/query-dsl/type-filter/
         out.type = { value : filter.value };
+      } else if (filter.type == 'exists') {
+        // exists filter: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-exists-filter.html
+        out.exists = { field : filter.field };
+      } else if (filter.type == 'missing') {
+        // missing filter: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-missing-filter.html
+        out.missing = { field : filter.field };
       }
       if (filter.not) {
         out = { not: JSON.parse(JSON.stringify(out)) };
