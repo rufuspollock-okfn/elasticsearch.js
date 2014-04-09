@@ -204,6 +204,82 @@ test("queryNormalize", function() {
   };
   deepEqual(out, exp);
 
+  // exists
+  var in_ = emptyQuery();
+  in_.filters = [
+    {
+      type: 'exists',
+      field: 'xyz'
+    }
+  ];
+  var out = backend._normalizeQuery(in_);
+  var exp = {
+    filtered: {
+      filter: {
+        and: [
+          {
+            exists: {
+              field: 'xyz'
+            }
+          }
+        ]
+      }
+    }
+  };
+  deepEqual(out, exp);
+
+  // missing
+  var in_ = emptyQuery();
+  in_.filters = [
+    {
+      type: 'missing',
+      field: 'xyz'
+    }
+  ];
+  var out = backend._normalizeQuery(in_);
+  var exp = {
+    filtered: {
+      filter: {
+        and: [
+          {
+            missing: {
+              field: 'xyz'
+            }
+          }
+        ]
+      }
+    }
+  };
+  deepEqual(out, exp);
+
+  // not
+  var in_ = emptyQuery();
+  in_.filters = [
+    {
+      not: true,
+      type: 'term',
+      field: 'xyz',
+      term: 'one'
+    }
+  ];
+  var out = backend._normalizeQuery(in_);
+  var exp = {
+    filtered: {
+      filter: {
+        and: [
+          {
+            'not' : {
+              term: {
+                xyz: 'one'
+              }
+            }
+          }
+        ]
+      }
+    }
+  };
+  deepEqual(out, exp);
+
   // ids query 
   var in_ = emptyQuery();
   in_.ids = [ 1, 2, 3, 4 ];
