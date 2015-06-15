@@ -3,7 +3,7 @@ A simple javascript library for working with [ElasticSearch][].
 It also provides a backend interface to ElasticSearch suitable for use with the
 [Recline][] suite of data libraries.
 
-[ElasticSearch]: http://www.elasticsearch.org/
+[ElasticSearch]: http://www.elastic.co/
 [Recline]: http://okfnlabs.org/recline/
 
 ## Usage
