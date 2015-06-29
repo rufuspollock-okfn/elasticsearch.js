@@ -20,6 +20,7 @@ var ES = {};
   my.Table = function(endpoint, options) { 
     var self = this;
     this.endpoint = endpoint;
+    this.headers = options.headers || {};
     this.options = _.extend({
         dataType: 'json'
       },
@@ -32,10 +33,8 @@ var ES = {};
     // @return promise compatible deferred object.
     this.mapping = function() {
       var schemaUrl = self.endpoint + '/_mapping';
-      var jqxhr = makeRequest({
-        url: schemaUrl,
-        dataType: this.options.dataType
-      });
+      var request = _.extend({url: schemaUrl}, this.options);
+      var jqxhr = makeRequest(request, this.headers);
       return jqxhr;
     };
 
@@ -46,10 +45,8 @@ var ES = {};
     // @return promise compatible deferred object.
     this.get = function(id) {
       var base = this.endpoint + '/' + id;
-      return makeRequest({
-        url: base,
-        dataType: 'json'
-      });
+      var request = _.extend({url: base}, this.options);
+      return makeRequest(request, this.headers);
     };
 
     // ### upsert
@@ -64,12 +61,8 @@ var ES = {};
       if (doc.id) {
         url += '/' + doc.id;
       }
-      return makeRequest({
-        url: url,
-        type: 'POST',
-        data: data,
-        dataType: 'json'
-      });
+      var request = _.extend({url: base}, {type: 'POST'}, {data: data}, this.options);
+      return makeRequest(request, this.headers);
     };
 
     // ### update
@@ -82,12 +75,8 @@ var ES = {};
     this.update = function(doc, doc_id) {
       var upd = { "doc" : doc };
       var data = JSON.stringify({ "doc" : doc })
-      return makeRequest({
-        url: this.endpoint + '/' + doc_id + '/_update',
-        type: 'POST',
-        data: data,
-        dataType: 'json'
-      });
+      var request = _.extend({url: this.endpoint + '/' + doc_id + '/_update'}, {type: 'POST'}, {data: data}, this.options);
+      return makeRequest(request, this.headers);
     };
 
     // ### delete
@@ -99,11 +88,8 @@ var ES = {};
     this.remove = function(id) {
       url = this.endpoint;
       url += '/' + id;
-      return makeRequest({
-        url: url,
-        type: 'DELETE',
-        dataType: 'json'
-      });
+      var request = _.extend({url: url}, {type: 'DELETE'}, this.options);
+      return makeRequest(request, this.headers);
     };
 
     this._normalizeQuery = function(queryObj) {
@@ -227,11 +213,8 @@ var ES = {};
       }        
       var data = {source: JSON.stringify(esQuery)};
       var url = this.endpoint + '/_search';
-      var jqxhr = makeRequest({
-        url: url,
-        type: 'POST',
-        data: JSON.stringify(esQuery)
-      });
+      var request = _.extend({url: url}, {type: 'POST'}, {data: JSON.stringify(esQuery)}, this.options);
+      var jqxhr = makeRequest(request, this.headers);
       return jqxhr;
     };
   };
