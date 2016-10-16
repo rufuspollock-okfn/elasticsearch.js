@@ -2,7 +2,7 @@ var ES = {};
 
 (function(my) {
   // use either jQuery or Underscore Deferred depending on what is available
-  var Deferred = _.isUndefined(this.jQuery) ? _.Deferred : jQuery.Deferred;
+ var Deferred = (typeof jQuery !== "undefined" && jQuery.Deferred) || _.Deferred;
 
   // ## Table
   //
@@ -255,7 +255,7 @@ recline.Backend.ElasticSearch = recline.Backend.ElasticSearch || {};
   my.__type__ = 'elasticsearch';
 
   // use either jQuery or Underscore Deferred depending on what is available
-  var Deferred = _.isUndefined(jQuery) ? _.Deferred : jQuery.Deferred;
+  var Deferred = (typeof jQuery !== "undefined" && jQuery.Deferred) || _.Deferred;
 
   // ## Recline Connectors 
   //
